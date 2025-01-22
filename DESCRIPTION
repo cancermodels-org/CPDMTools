@@ -15,3 +15,5 @@ Imports:
     magrittr (>= 2.0.3),
     readxl (>= 1.4.3),
     stringr (>= 1.5.1)
+URL: https://github.com/cancermodels-org/CPDMTools
+BugReports: https://github.com/cancermodels-org/CPDMTools/issues
