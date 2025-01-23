@@ -23,7 +23,7 @@ labguru_plate_prep <- function(file_path = "") {
   plate_data <- plate_data %>%
     dplyr::mutate(well = paste0(row, column)) %>%
     dplyr::select(inventory_item_sys_id, inventory_collection,
-                  inventory_item_name, well_annotation, well)
+                  inventory_item_name, well_annotation, row, column, well)
 
   # Return Labguru plate data
   return(plate_data)

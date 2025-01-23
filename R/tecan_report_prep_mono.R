@@ -3,25 +3,23 @@
 #' @param file_path A character string specifying the full file path to the
 #' Tecan report file for monotherapy-based experiments (inclusive of the tecan
 #' report excel file name)
-#' @param concentration_units A character string specifying the concentration
-#' units. Values incluide "molar", "millimolar", "micromolar", "nonomolar",
-#' and "picomolar". Defaults to "micromolar".
+#' @param remove_na A logical value specifying whether to remove non-dispensed
+#' wells (i.e. treatment_name is NA). Defaults to TRUE.
 #'
 #' @returns A data frame of the prepared tecan report data
 #' @importFrom magrittr %>%
 #' @importFrom readxl read_excel
 #' @importFrom janitor make_clean_names
-#' @importFrom dplyr case_when filter mutate rename select
+#' @importFrom dplyr case_when filter mutate select
 #' @importFrom stringr str_remove str_remove_all str_replace_all str_squish
 #' @export
 #'
 #' @examples
 #' tecan_report_prep_mono(
-#' file_path = "",
-#' concentration_units = "micromolar")
+#' file_path = "")
 tecan_report_prep_mono <- function(
     file_path = "",
-    concentration_units = "micromolar") {
+    remove_na = TRUE) {
   # Import tecan plate map
   data_frame <- readxl::read_excel(
     file_path,
@@ -82,37 +80,21 @@ tecan_report_prep_mono <- function(
         treatment_name == "DMSO 10%" ~ "Positive Control",
         TRUE ~ "Monotherapy"
       )
-    ) %>%
-    dplyr::filter(!is.na(treatment_name))
+    )
 
   # Select relevant variables in order
   data_frame <- data_frame %>%
-    dplyr::select(plate, well, treatment_name, treatment_type,
+    dplyr::select(plate, row = dispensed_row_ch, column = dispensed_col,
+                  well, treatment_name, treatment_type,
                   concentration, dmso_percent)
 
-  # Rename concentration variable based on input units
-  if(concentration_units == "molar"){
+  # Remove empty treatment_name wells
+  if(remove_na == TRUE){
     data_frame <- data_frame %>%
-      dplyr::rename(concentration_m = concentration)
-  }
-  if(concentration_units == "millimolar"){
-    data_frame <- data_frame %>%
-      dplyr::rename(concentration_mm = concentration)
-  }
-  if(concentration_units == "micromolar"){
-    data_frame <- data_frame %>%
-      dplyr::rename(concentration_um = concentration)
-  }
-  if(concentration_units == "nanomolar"){
-    data_frame <- data_frame %>%
-      dplyr::rename(concentration_nm = concentration)
-  }
-  if(concentration_units == "picomolar"){
-    data_frame <- data_frame %>%
-      dplyr::rename(concentration_pm = concentration)
+      dplyr::filter(!is.na(treatment_name))
   }
 
-  # Return the prepared tecan data
+  # Remove NA treatment_name values
   return(data_frame)
 
 }

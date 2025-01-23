@@ -1,11 +1,10 @@
 #' Import and prep tecan report file - synergy
 #'
 #' @param file_path A character string specifying the full file path to the
-#' Tecan report file for synergy-based experiments (inclusive of the tecan
-#' report excel file name)
-#' @param concentration_units A character string specifying the concentration
-#' units. Values incluide "molar", "millimolar", "micromolar", "nonomolar",
-#' and "picomolar". Defaults to "micromolar".
+#' Tecan report file for synergy-based experiments (inclusive of the Tecan
+#' report .xlsx file name)
+#' @param remove_na A logical value specifying whether to remove non-dispensed
+#' wells (i.e. treatment_name is NA). Defaults to TRUE
 #'
 #' @returns A data frame of the prepared tecan report data
 #' @importFrom magrittr %>%
@@ -20,11 +19,10 @@
 #'
 #' @examples
 #' tecan_report_prep_syn(
-#' file_path = "",
-#' concentration_units = "micromolar")
+#' file_path = "")
 tecan_report_prep_syn <- function(
     file_path = "",
-    concentration_units = "micromolar"){
+    remove_na = TRUE){
   # Import tecan plate map
   data_frame <- readxl::read_excel(
     file_path,
@@ -80,22 +78,23 @@ tecan_report_prep_syn <- function(
          is.na(treatment_name)) ~ "DMSO 10%",
       TRUE ~ treatment_name
     ),
-    treatment_name = stringr::str_to_upper(treatment_name)) %>%
-    dplyr::filter(!is.na(treatment_name))
+    treatment_name = stringr::str_to_upper(treatment_name))
 
   # Separate data
   mono_data <- data_frame %>%
     dplyr::filter(treatment_name != "2_FLUIDS")
   syn_data <- data_frame %>%
-    dplyr::filter(treatment_name == "2_FLUIDS")
+    dplyr::filter((treatment_name == "2_FLUIDS" |
+                  is.na(treatment_name)))
 
   # Convert synergy data into a long dataset by the conc_ variables
   syn_data <- syn_data %>%
-    dplyr::select(plate, well, dplyr::contains("conc_"),
-                  dmso_percent) %>%
+    dplyr::select(plate, dispensed_row_ch, dispensed_col,
+                  well, dplyr::contains("conc_"), dmso_percent) %>%
     tidyr::pivot_longer(
       cols = !c(
-        "plate", "well", "dmso_percent"
+        "plate", "dispensed_row_ch", "dispensed_col",
+        "well", "dmso_percent"
       ),
       names_to = "treatment_name",
       values_to = "concentration"
@@ -111,7 +110,8 @@ tecan_report_prep_syn <- function(
 
   # Create wide dataset based on plate and well replicates
   syn_data_wide <- syn_data %>%
-    dplyr::select(plate, well) %>%
+    dplyr::select(plate, dispensed_row_ch,
+                  dispensed_col, well) %>%
     dplyr::distinct() %>%
     dplyr::mutate(
       treatment_name = NA,
@@ -120,6 +120,10 @@ tecan_report_prep_syn <- function(
       combo_drug2 = NA,
       combo_conc1 = NA,
       combo_conc2 = NA
+    ) %>%
+    dplyr::rename(
+      row = dispensed_row_ch,
+      column = dispensed_col
     )
 
   # Loop through and fill in syn_data_wide
@@ -150,31 +154,17 @@ tecan_report_prep_syn <- function(
         TRUE ~ "Monotherapy"
       )
     ) %>%
-    dplyr::select(plate, well, treatment_name, treatment_type,
+    dplyr::select(plate, row = dispensed_row_ch,
+                  column = dispensed_col, well,
+                  treatment_name, treatment_type,
                   concentration) %>%
     dplyr::bind_rows(syn_data_wide) %>%
     dplyr::arrange(plate, well)
 
-  # Rename concentration variable based on input units
-  if(concentration_units == "molar"){
-    tecan_data <- tecan_data %>%
-      dplyr::rename(concentration_m = concentration)
-  }
-  if(concentration_units == "millimolar"){
-    tecan_data <- tecan_data %>%
-      dplyr::rename(concentration_mm = concentration)
-  }
-  if(concentration_units == "micromolar"){
-    tecan_data <- tecan_data %>%
-      dplyr::rename(concentration_um = concentration)
-  }
-  if(concentration_units == "nanomolar"){
-    tecan_data <- tecan_data %>%
-      dplyr::rename(concentration_nm = concentration)
-  }
-  if(concentration_units == "picomolar"){
-    tecan_data <- tecan_data %>%
-      dplyr::rename(concentration_pm = concentration)
+  # Remove NA treatment_name values
+  if(remove_na == TRUE){
+    data_frame <- data_frame %>%
+      dplyr::filter(!is.na(treatment_name))
   }
 
   # Return tecan data frame

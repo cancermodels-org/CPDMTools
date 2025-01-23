@@ -4,16 +4,15 @@
 \alias{tecan_report_prep_syn}
 \title{Import and prep tecan report file - synergy}
 \usage{
-tecan_report_prep_syn(file_path = "", concentration_units = "micromolar")
+tecan_report_prep_syn(file_path = "", remove_na = TRUE)
 }
 \arguments{
 \item{file_path}{A character string specifying the full file path to the
-Tecan report file for synergy-based experiments (inclusive of the tecan
-report excel file name)}
+Tecan report file for synergy-based experiments (inclusive of the Tecan
+report .xlsx file name)}
 
-\item{concentration_units}{A character string specifying the concentration
-units. Values incluide "molar", "millimolar", "micromolar", "nonomolar",
-and "picomolar". Defaults to "micromolar".}
+\item{remove_na}{A logical value specifying whether to remove non-dispensed
+wells (i.e. treatment_name is NA). Defaults to TRUE}
 }
 \value{
 A data frame of the prepared tecan report data
@@ -23,6 +22,5 @@ Import and prep tecan report file - synergy
 }
 \examples{
 tecan_report_prep_syn(
-file_path = "",
-concentration_units = "micromolar")
+file_path = "")
 }

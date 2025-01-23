@@ -1,11 +1,13 @@
 Package: CPDMTools
-Title: What the Package Does (One Line, Title Case)
+Title: Tools and Functions for CPDM
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Anand", "Panigrahy", , 
+    "anand_panigrahy@dfci.harvard.edu", role = c("aut", "cre"))
+Description: This package contains functions for CPDM for cleaning and preparing data, graphing and performing QC analysis, and analyzing data.
+License: MIT + file LICENSE
+Depends: 
+    R (>= 4.0.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -13,7 +15,9 @@ Imports:
     dplyr (>= 1.1.4),
     janitor (>= 2.2.0),
     magrittr (>= 2.0.3),
+    readr (>= 2.1.5),
     readxl (>= 1.4.3),
-    stringr (>= 1.5.1)
+    stringr (>= 1.5.1),
+    tidyr (>= 1.3.1)
 URL: https://github.com/cancermodels-org/CPDMTools
 BugReports: https://github.com/cancermodels-org/CPDMTools/issues

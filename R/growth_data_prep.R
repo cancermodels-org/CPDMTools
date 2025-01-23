@@ -1,19 +1,26 @@
 #' Import and prep Incucyte/Cytation data
 #'
-#' @param file_path
-#' @param imaging_equipment
-#' @param growth_metric_type
-#' @param time_unit
+#' @param file_path A character string specifying the full file path to the
+#' Incucyte/Cytation text file (inclusive of the full growth .txt file name)
+#' @param imaging_equipment A character string specifying the machine in which
+#' the file was generated from. Values include "Incucyte" or "Cytation".
+#' Defaults to Cytation
 #'
-#' @returns
+#' @returns A data frame of the prepared growth data
+#' @importFrom dplyr any_vars case_when filter_all mutate mutate_at rename
+#' select select_if vars
+#' @importFrom magrittr %>%
+#' @importFrom readr read_delim read_tsv
+#' @importFrom stringr str_remove str_split_i
+#' @importFrom tidyr pivot_longer
 #' @export
 #'
 #' @examples
+#' growth_data_prep(file_path = "",
+#' imaging_equipment = "Incucyte")
 growth_data_prep <- function(
     file_path = "",
-    imaging_equipment = "Incucyte",
-    growth_metric_type = "confluency",
-    time_unit = "hours") {
+    imaging_equipment = "Incucyte") {
   ## Incucyte data import and prep
   if (imaging_equipment == "Incucyte") {
     # Create initial row number to skip
@@ -37,13 +44,11 @@ growth_data_prep <- function(
       tidyr::pivot_longer(
         cols = !c("Date Time", "Elapsed"),
         names_to = "well",
-        values_to = "growth"
+        values_to = "growth_metric"
       ) %>%
-      dplyr::select(well, Elapsed, growth) %>%
-      dplyr::rename(
-        !!paste0("growth_", growth_metric_type) := growth,
-        !!paste0("time_", time_unit) := Elapsed
-      )
+      dplyr::mutate(treatment_period_yn = "No") %>%
+      dplyr::select(well, treatment_period_yn, Elapsed, growth_metric) %>%
+      dplyr::rename(time = Elapsed)
 
     ## Cytation data import and prep
   } else {
@@ -76,7 +81,7 @@ growth_data_prep <- function(
       tidyr::pivot_longer(
         cols = !c("well"),
         names_to = "time",
-        values_to = "growth"
+        values_to = "growth_metric"
       )
 
     # Clean time variables and round the hour if minutes are >= 30 mark
@@ -91,10 +96,9 @@ growth_data_prep <- function(
           TRUE ~ hour + 1
         )
       ) %>%
+      dplyr::mutate(treatment_period_yn = "No") %>%
       dplyr::select(
-        well, !!paste0("time_", time_unit) := time_num,
-        !!paste0("growth_", growth_metric_type) := growth
-      )
+        well, treatment_period_yn, time = time_num, growth_metric)
   }
 
   # Return growth file
