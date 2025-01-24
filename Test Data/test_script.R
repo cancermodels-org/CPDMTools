@@ -1,6 +1,6 @@
 # Testing file
 library(here)
-library(magrittr)
+library(CPDMTools)
 options(scipen = 999)
 
 # Labguru plate map
