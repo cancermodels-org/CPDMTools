@@ -2,6 +2,7 @@
 library(here)
 library(CPDMTools)
 options(scipen = 999)
+devtools::load_all()
 
 # Labguru plate map
 labguru_plate_data_frame <- labguru_plate_prep(

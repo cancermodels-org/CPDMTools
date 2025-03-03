@@ -7,10 +7,10 @@
 #' Defaults to Cytation
 #'
 #' @returns A data frame of the prepared growth data
-#' @importFrom dplyr any_vars case_when filter_all mutate mutate_at rename
+#' @importFrom dplyr any_vars case_when mutate mutate_at rename
 #' select select_if vars
 #' @importFrom magrittr %>%
-#' @importFrom readr read_delim read_tsv
+#' @importFrom data.table fread
 #' @importFrom stringr str_remove str_split_i
 #' @importFrom tidyr pivot_longer
 #' @export
@@ -25,10 +25,10 @@ growth_data_prep <- function(
   if (imaging_equipment == "Incucyte") {
     # Create initial row number to skip
     start_row_skip <- 0
-    growth_file <- readr::read_delim(
-      file_path,
+    growth_file <- data.table::fread(
+      input = file_path,
       skip = start_row_skip,
-    )
+      data.table = FALSE)
     # Check if first column name is Date Time, if not re-import data
     # skipping by 1 row
     while (colnames(growth_file)[1] != "Date Time") {
@@ -54,24 +54,23 @@ growth_data_prep <- function(
   } else {
     # Create initial row number to skip
     start_row_skip <- 0
-    growth_file <- readr::read_tsv(
-      file_path,
+    growth_file <- data.table::fread(
+      input = file_path,
       skip = start_row_skip,
-    )
+      data.table = FALSE)
     # Check if first column name is Time, if not re-import data
     # skipping by 1 row
     while (colnames(growth_file)[1] != "Time") {
       start_row_skip <- start_row_skip + 1
-      growth_file <- readr::read_delim(
-        file_path,
+      growth_file <- data.table::fread(
+        input = file_path,
         skip = start_row_skip,
-      )
+        data.table = FALSE)
     }
 
     # Clean growth_file columns
     growth_file <- growth_file %>%
-      dplyr::filter_all(dplyr::any_vars(. != "?????")) %>%
-      dplyr::select_if(~ !all(. == "?????")) %>%
+      dplyr::select(where(~ any(!is.na(.) & . != "?????"))) %>%
       dplyr::mutate_at(dplyr::vars(-1), as.numeric) %>%
       dplyr::select(Time, where(is.numeric))
 
@@ -87,7 +86,6 @@ growth_data_prep <- function(
     # Clean time variables and round the hour if minutes are >= 30 mark
     growth_file <- growth_file %>%
       dplyr::mutate(
-        # Remove trailing numbers after "..."
         time = stringr::str_remove(time, "\\.\\.\\..*"),
         hour = as.numeric(stringr::str_split_i(time, "\\:", 1)),
         minute = as.numeric(stringr::str_split_i(time, "\\:", 2)),
