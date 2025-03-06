@@ -63,6 +63,12 @@ joined_data <- plate_data_join(
   growth_data_frame = growth_data_frame
 )
 
+joined_data <- plate_data_join(
+  labguru_plate_data_frame = NULL,
+  tecan_plate_data_frame = tecan_plate_data_frame,
+  growth_data_frame = growth_data_frame,
+  ctg_data_frame = NULL
+)
 
 
 

@@ -138,8 +138,8 @@ plate_data_join <- function(
   # When tecan_plate_data_frame and ctg_data_frame are present
   if(is.null(labguru_plate_data_frame) &
      !is.null(tecan_plate_data_frame) &
-     !is.null(growth_data_frame) &
-     is.null(ctg_data_frame)){
+     is.null(growth_data_frame) &
+     !is.null(ctg_data_frame)){
     # Join data
     joined_data <- tecan_plate_data_frame %>%
       dplyr::select(-row, -column) %>%
