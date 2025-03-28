@@ -33,6 +33,15 @@ growth_data_prep <- function(
     # skipping by 1 row
     while (colnames(growth_file)[1] != "Date Time") {
       start_row_skip <- start_row_skip + 1
+
+      # Break while loop if not achieved by 8
+      if (start_row_skip == 8) {
+        stop(
+          paste0("Error: 'Date Time' column not found after 8 skipped rows.",
+                 "Check function inputs or input data.")
+             )
+      }
+
       growth_file <- readr::read_delim(
         file_path,
         skip = start_row_skip,
@@ -62,6 +71,15 @@ growth_data_prep <- function(
     # skipping by 1 row
     while (colnames(growth_file)[1] != "Time") {
       start_row_skip <- start_row_skip + 1
+
+      # Break while loop if not achieved by 8
+      if (start_row_skip == 8) {
+        stop(
+          paste0("Error: 'Time' column not found after 8 skipped rows.",
+                 "Check function inputs or input data.")
+        )
+      }
+
       growth_file <- data.table::fread(
         input = file_path,
         skip = start_row_skip,
