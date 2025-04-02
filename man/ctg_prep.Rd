@@ -4,11 +4,15 @@
 \alias{ctg_prep}
 \title{Import and prep CTG data}
 \usage{
-ctg_prep(file_path = "")
+ctg_prep(file_path = "", equipment = "GloMax Explorer")
 }
 \arguments{
 \item{file_path}{A character string specifying the full file path to the
 CTG excel file file (inclusive of the full CTG .xlsx file name)}
+
+\item{equipment}{A character string specifying which CTG machine was used to
+generate the xlsx file. Values include "GloMax Explorer" or "SpectraMAX iD3".
+Defaults to "GloMax Explorer".}
 }
 \value{
 A data frame of the prepared CTG data
