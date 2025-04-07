@@ -7,7 +7,7 @@
 #' Defaults to "GloMax Explorer".
 #'
 #' @returns A data frame of the prepared CTG data
-#' @importFrom dplyr bind_rows filter mutate na_if select rename
+#' @importFrom dplyr bind_rows contains filter mutate na_if select rename
 #' @importFrom janitor clean_names
 #' @importFrom magrittr %>%
 #' @importFrom readxl read_excel
@@ -71,7 +71,7 @@ ctg_prep <- function(
       data_temp <- readxl::read_excel(
         file_path,
         guess_max = 10000,
-        skip = plate_name_pos[a] + 29
+        skip = plate_name_pos[a] + 36
       )
 
       # Find the first fully blank row
@@ -84,7 +84,7 @@ ctg_prep <- function(
 
       # Clean and transpose data
       data_long <- data_temp %>%
-        dplyr::select(-`Wavelength(Ex/Em)`) %>%
+        dplyr::select(-dplyr::contains("Wave")) %>%
         dplyr::rename(row = "-/0 nm") %>%
         tidyr::pivot_longer(
           cols = !"row",
