@@ -51,7 +51,7 @@ ctg_prep <- function(
         well = stringr::str_replace_all(well, ":", "")
       ) %>%
       tidyr::drop_na(value) %>%
-      dplyr::rename(ctg_value = value)
+      dplyr::rename(value = value)
 
   }else{
     # Load Excel file
@@ -89,9 +89,9 @@ ctg_prep <- function(
         tidyr::pivot_longer(
           cols = !"row",
           names_to = "column",
-          values_to = "ctg_value"
+          values_to = "value"
         ) %>%
-        dplyr::filter(!is.na(ctg_value)) %>%
+        dplyr::filter(!is.na(value)) %>%
         dplyr::mutate(
           ctg_plate_number = as.numeric(a),
           ctg_plate_name = plate_names[a],
@@ -99,7 +99,7 @@ ctg_prep <- function(
         ) %>%
         dplyr::select(
           ctg_plate_number, ctg_plate_name,
-          well, ctg_value
+          well, value
         )
 
       # Bind data

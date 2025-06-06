@@ -62,8 +62,8 @@ dr4pl_qc_fit <- function(
   model <- NULL
 
   # Perform 4-parameter curve fitting
-  if (min(data_temp$ctg_value_norm) > lb_if_min_gt |
-    max(data_temp$ctg_value_norm) < ub_if_max_lt) {
+  if (min(data_temp$value_norm) > lb_if_min_gt |
+    max(data_temp$value_norm) < ub_if_max_lt) {
     converged <- FALSE
     bound_threshold <- 0.2
 
@@ -73,12 +73,12 @@ dr4pl_qc_fit <- function(
       try_result <- try(
         {
           model <- dr4pl::dr4pl(
-            formula = ctg_value_norm ~ concentration,
+            formula = value_norm ~ concentration,
             data = data_temp,
             method.init = method_init,
             method.robust = method_robust,
-            lowerl = c(-Inf, -Inf, -Inf, min(data_temp$ctg_value_norm) - bound_threshold),
-            upperl = c(max(data_temp$ctg_value_norm) + bound_threshold, Inf, Inf, Inf)
+            lowerl = c(-Inf, -Inf, -Inf, min(data_temp$value_norm) - bound_threshold),
+            upperl = c(max(data_temp$value_norm) + bound_threshold, Inf, Inf, Inf)
           )
         },
         silent = TRUE
@@ -94,7 +94,7 @@ dr4pl_qc_fit <- function(
   # Fit unbound model
   } else {
     model <- dr4pl::dr4pl(
-      formula = ctg_value_norm ~ concentration,
+      formula = value_norm ~ concentration,
       data = data_temp,
       method.init = method_init,
       method.robust = method_robust

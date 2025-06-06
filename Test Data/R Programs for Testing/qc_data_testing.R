@@ -76,8 +76,8 @@ data_frame <- round_concentration(
 
 ctg_qc_control_plot(
   data_frame = data_frame,
-  show_outlier = FALSE,
-  make_interactive = FALSE)
+  show_outlier = TRUE,
+  make_interactive = TRUE)
 
 data_frame <- ctg_normalize(
   data_frame = data_frame,
@@ -89,23 +89,25 @@ data_frame[which(data_frame$well %in% c("D11", "C11")), "outlier_manual_yn"] <- 
 #  filter(treatment_name == "AMG232")
 
 # Large outlier
-data_frame[which(data_frame$well == "G22"), "ctg_value_norm"] <- 0.2
+data_frame[which(data_frame$well == "G22"), "value_norm"] <- 0.2
 # Medium outlier
-data_frame[which(data_frame$well == "K12"), "ctg_value_norm"] <- 0.4
+data_frame[which(data_frame$well == "K12"), "value_norm"] <- 0.4
 # Small outlier
-data_frame[which(data_frame$well == "D17"), "ctg_value_norm"] <- 0.4
+data_frame[which(data_frame$well == "D17"), "value_norm"] <- 0.4
 
 data_frame[which(data_frame$well %in% c("G22","K12","D17")), "outlier_manual_yn"] <- "Yes"
 
+data_frame <- data.frame(data.frame)
+
 data_frame <- ctg_qc_mean_outlier(
-  data_frame = data_frame,
+  ctg_data = data_frame,
   z_score_threshold = 3
 )
-data_frame[which(data_frame$well == "D17"), "outlier_manual_yn"] <- "No"
-data_frame[which(data_frame$well == "D11"), "outlier_manual_yn"] <- "No"
+#data_frame[which(data_frame$well == "D17"), "outlier_manual_yn"] <- "No"
+#data_frame[which(data_frame$well == "D11"), "outlier_manual_yn"] <- "No"
 
 ctg_list <- dr4pl_qc_fit_loop(
-  data_frame = data_frame,
+  ctg_data = data_frame,
   method_init = "logistic",
   method_robust = "Huber"
 )
@@ -120,5 +122,8 @@ ctg_qc_treat_plot(
   show_outlier = TRUE,
   make_interactive = TRUE
 )
+
+
+prims <- ctg_to_prism(ctg_list[[1]])
 
 

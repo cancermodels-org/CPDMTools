@@ -5,7 +5,7 @@
 \title{DR4PL Curve Fitting Loop for CTG QC}
 \usage{
 dr4pl_qc_fit_loop(
-  data_frame,
+  ctg_data,
   concentration_unit = "uM",
   method_init = "logistic",
   method_robust = "Huber",
@@ -14,7 +14,7 @@ dr4pl_qc_fit_loop(
 )
 }
 \arguments{
-\item{data_frame}{A data frame with CTG data}
+\item{ctg_data}{A list object (ctg_list) or data frame with CTG data}
 
 \item{concentration_unit}{A character string specifying the concentration
 units. Defaults to uM.}

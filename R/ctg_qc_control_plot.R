@@ -46,26 +46,26 @@ ctg_qc_control_plot <- function(
   # Calculate control summary statistics
   avg_neg_control <- data_temp %>%
     dplyr::filter(treatment_type == "Negative Control") %>%
-    dplyr::summarise(mean = mean(ctg_value, na.rm = TRUE)) %>%
+    dplyr::summarise(mean = mean(value, na.rm = TRUE)) %>%
     dplyr::pull(mean) %>%
     as.numeric()
 
   sd_neg_control <- data_temp %>%
     dplyr::filter(treatment_type == "Negative Control") %>%
-    dplyr::summarise(sd = sd(ctg_value, na.rm = TRUE)) %>%
+    dplyr::summarise(sd = sd(value, na.rm = TRUE)) %>%
     dplyr::pull(sd) %>%
     as.numeric()
 
   if ("Positive Control" %in% unique(data_temp$treatment_type)) {
     avg_pos_control <- data_temp %>%
       dplyr::filter(treatment_type == "Positive Control") %>%
-      dplyr::summarise(mean = mean(ctg_value, na.rm = TRUE)) %>%
+      dplyr::summarise(mean = mean(value, na.rm = TRUE)) %>%
       dplyr::pull(mean) %>%
       as.numeric()
 
     sd_pos_control <- data_temp %>%
       dplyr::filter(treatment_type == "Positive Control") %>%
-      dplyr::summarise(sd = sd(ctg_value, na.rm = TRUE)) %>%
+      dplyr::summarise(sd = sd(value, na.rm = TRUE)) %>%
       dplyr::pull(sd) %>%
       as.numeric()
 
@@ -94,7 +94,7 @@ ctg_qc_control_plot <- function(
   # Create plot
   plot_01 <- ggplot2::ggplot(
     data_temp,
-    ggplot2::aes(x = treatment_type, y = ctg_value)
+    ggplot2::aes(x = treatment_type, y = value)
   ) +
     ggplot2::geom_boxplot(outlier.shape = NA) +
     ggplot2::geom_point(
@@ -102,7 +102,7 @@ ctg_qc_control_plot <- function(
         color = color_new,
         text = paste(
           "Treatment Type:", treatment_type, "<br>",
-          "CTG Value:", ctg_value, "<br>",
+          "Value:", value, "<br>",
           "Treatment Name:", treatment_name, "<br>",
           "Concentration", concentration, "<br>",
           "Well:", well
@@ -115,11 +115,11 @@ ctg_qc_control_plot <- function(
     ggplot2::theme_classic() +
     ggplot2::scale_color_identity() +
     ggplot2::ggtitle(paste0(
-      "CTG Controls QC\nZ-Factor: ",
+      "Controls and Therapies QC\nZ-Factor: ",
       z_factor
     )) +
     ggplot2::xlab("Treatment Type") +
-    ggplot2::ylab("Raw Luminescence Value") +
+    ggplot2::ylab("Raw Value") +
     ggplot2::theme(
       plot.title = ggplot2::element_text(
         hjust = 0.5,

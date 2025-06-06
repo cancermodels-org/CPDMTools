@@ -1,7 +1,7 @@
 #' DR4PL Curve Fitting Loop for CTG QC
 #'
 #' @inheritParams dr4pl_qc_fit
-#' @param data_frame A data frame with CTG data
+#' @param ctg_data A list object (ctg_list) or data frame with CTG data
 #'
 #' @returns A list object
 #' @importFrom dplyr arrange bind_rows filter
@@ -9,12 +9,19 @@
 #' @export
 #'
 dr4pl_qc_fit_loop <- function(
-    data_frame,
+    ctg_data,
     concentration_unit = "uM",
     method_init = "logistic",
     method_robust = "Huber",
     lb_if_min_gt = 0.3,
     ub_if_max_lt = 0.8){
+
+  # If input is ctg_list, extract data_frame
+  if(is.list(ctg_data)){
+    data_frame <- ctg_list[[1]]
+  }else{
+    data_frame <- ctg_data
+  }
 
   # Loop through each treatment and calculate 4-parameters curves and outleirs
   data_temp <- data_frame %>%

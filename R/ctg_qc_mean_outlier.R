@@ -1,7 +1,6 @@
 #' Detect outlier with z-scores (mean/sd)
 #'
-#' @param data_frame A data frame with variable treatment_name, concentration,
-#' and ctg_value
+#' @param ctg_data A list object (ctg_list) or data frame with CTG data
 #' @param z_score_threshold A numeric value specifying the z-score threshold to
 #' use for determining outliers. Defaults to 3.
 #'
@@ -12,8 +11,15 @@
 #' @export
 #'
 ctg_qc_mean_outlier <- function(
-    data_frame,
+    ctg_data,
     z_score_threshold = 3){
+
+  # If input is ctg_list, extract data_frame
+  if(is.list(ctg_data) & !is.data.frame(ctg_data)){
+    data_frame <- ctg_data[[1]]
+  }else{
+    data_frame <- ctg_data
+  }
 
   # Filter out any wells already marked as outliers
   data_temp <- data_frame %>%
@@ -24,8 +30,8 @@ ctg_qc_mean_outlier <- function(
   # Filter data to controls
   mean_values <- data_temp %>%
     dplyr::group_by(treatment_name, concentration) %>%
-    dplyr::summarise(ctg_value_mean = mean(ctg_value),
-                     ctg_value_sd = stats::sd(ctg_value))
+    dplyr::summarise(ctg_value_mean = mean(value, na.rm = TRUE),
+                     ctg_value_sd = stats::sd(value, na.rm = TRUE))
 
   # Join mean/sd
   data_frame <- data_frame %>%
@@ -33,16 +39,16 @@ ctg_qc_mean_outlier <- function(
 
   # Calculate z-scores
   data_frame <- data_frame %>%
-    dplyr::mutate(z_score = (ctg_value - ctg_value_mean)/abs(ctg_value_sd))
+    dplyr::mutate(z_score = (value - ctg_value_mean)/abs(ctg_value_sd))
 
   # Mark outliers based on z_score_threshold
   data_frame <- data_frame %>%
     dplyr::mutate(
       outlier_auto_yn_new = dplyr::case_when(
-        abs(z_score > z_score_threshold) ~ "Yes"
+        abs(z_score) > z_score_threshold ~ "Yes"
       ),
       outlier_auto_flag_reason_new = dplyr::case_when(
-        abs(z_score > z_score_threshold) ~
+        abs(z_score) > z_score_threshold ~
           paste("Mean/SD Outlier - Threshold of", z_score_threshold)
       ),
       outlier_auto_yn = dplyr::case_when(

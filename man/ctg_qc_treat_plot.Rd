@@ -8,6 +8,7 @@ ctg_qc_treat_plot(
   ctg_list,
   treat_name = "",
   show_outlier = TRUE,
+  show_dose_response_curve = TRUE,
   make_interactive = FALSE,
   x_limits = c(NA, NA),
   x_axis_breaks = ggplot2::waiver(),
@@ -25,7 +26,7 @@ ctg_qc_treat_plot(
 )
 }
 \arguments{
-\item{ctg_list}{A list object generated from dr4pl_qc_fit_loop}
+\item{ctg_list}{A list object generated from dr4pl_qc_fit_loop function}
 
 \item{treat_name}{A character string specifying the treatment_name to filter
 on.}

@@ -1,7 +1,7 @@
 #' CTG QC Treatment Plot
 #'
 #' @inheritParams growth_plot_qc_mono
-#' @param ctg_list A list object generated from dr4pl_qc_fit_loop
+#' @param ctg_list A list object generated from dr4pl_qc_fit_loop function
 #' @param treat_name A character string specifying the treatment_name to filter
 #' on.
 #' @param n_x_axis_breaks An integer specifying the number of major breaks
@@ -25,6 +25,7 @@ ctg_qc_treat_plot <- function(
     ctg_list,
     treat_name = "",
     show_outlier = TRUE,
+    show_dose_response_curve = TRUE,
     make_interactive = FALSE,
     x_limits = c(NA, NA),
     x_axis_breaks = ggplot2::waiver(),
@@ -74,17 +75,17 @@ ctg_qc_treat_plot <- function(
 
   # Create y_limits if not provided
   if (all(is.na(y_limits))) {
-    max_y <- max(data_temp$ctg_value_norm, na.rm = TRUE)
+    max_y <- max(data_temp$value_norm, na.rm = TRUE)
     max_y <- plyr::round_any(max_y, 0.5, ceiling)
     if (max_y < 1.5) max_y <- 1.5
 
-    min_y <- min(data_temp$ctg_value_norm, na.rm = TRUE)
+    min_y <- min(data_temp$value_norm, na.rm = TRUE)
     min_y <- plyr::round_any(min_y, 0.5, floor)
     if (min_y > 0) min_y <- 0
 
     y_limits <- c(min_y, max_y)
   } else {
-    min_y <- min(data_temp$ctg_value_norm, na.rm = TRUE)
+    min_y <- min(data_temp$value_norm, na.rm = TRUE)
     min_y <- plyr::round_any(min_y, 0.5, floor)
     if (min_y > 0) min_y <- 0
   }
@@ -92,7 +93,7 @@ ctg_qc_treat_plot <- function(
   # Create initial base plot
   plot_01 <- ggplot2::ggplot(
     data = data_temp,
-    ggplot2::aes(x = log10(concentration), y = ctg_value_norm)
+    ggplot2::aes(x = log10(concentration), y = value_norm)
   )
 
   # Add horizontal line at y=0 if values below 0 exist
@@ -100,30 +101,35 @@ ctg_qc_treat_plot <- function(
     plot_01 <- plot_01 + ggplot2::geom_hline(yintercept = 0)
   }
 
+  # Add dose-response curve if applicable
+  if(show_dose_response_curve == TRUE){
+    plot_01 <- plot_01 +
+      ggplot2::stat_function(
+        data = data_temp,
+        fun = function(x) {
+          conc <- 10^x
+          data_model$lower_asy_est[1] +
+            (data_model$upper_asy_est[1] - data_model$lower_asy_est[1]) /
+            (1 + ((conc / data_model$rel_ic50_est[1])^data_model$slope_est[1]))
+        },
+        color = data_model$color[1],
+        linewidth = geom_line_width,
+        alpha = 0.90
+      )
+  }
+
   # Finalize plot
   plot_01 <- plot_01 +
-    ggplot2::stat_function(
-      data = data_temp,
-      fun = function(x) {
-        conc <- 10^x
-        data_model$lower_asy_est[1] +
-          (data_model$upper_asy_est[1] - data_model$lower_asy_est[1]) /
-            (1 + ((conc / data_model$rel_ic50_est[1])^data_model$slope_est[1]))
-      },
-      color = data_model$color[1],
-      linewidth = geom_line_width,
-      alpha = 0.90
-    ) +
     ggplot2::geom_point(
       data = data_temp,
       ggplot2::aes(
         x = log10(concentration),
-        y = ctg_value_norm,
+        y = value_norm,
         color = color_new,
         text = paste0(
           "Well: ", well, "<br>",
           "Concentration: ", concentration, "<br>",
-          "CTG Value Norm: ", round(ctg_value_norm, 3)
+          "Value Norm: ", round(value_norm, 3)
         )
       ),
       size = geom_point_size,

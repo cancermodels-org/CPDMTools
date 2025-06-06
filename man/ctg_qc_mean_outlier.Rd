@@ -4,11 +4,10 @@
 \alias{ctg_qc_mean_outlier}
 \title{Detect outlier with z-scores (mean/sd)}
 \usage{
-ctg_qc_mean_outlier(data_frame, z_score_threshold = 3)
+ctg_qc_mean_outlier(ctg_data, z_score_threshold = 3)
 }
 \arguments{
-\item{data_frame}{A data frame with variable treatment_name, concentration,
-and ctg_value}
+\item{ctg_data}{A list object (ctg_list) or data frame with CTG data}
 
 \item{z_score_threshold}{A numeric value specifying the z-score threshold to
 use for determining outliers. Defaults to 3.}
