@@ -98,7 +98,7 @@ growth_qc_output <- function(
     prism <- growth_to_prism(data_clean)
 
     # Append output list
-    output_list[[length(output_list) + 1]] <- data.frame(prism)
+    output_list[[length(output_list) + 1]] <- prism
     names(output_list)[length(output_list)] <- "prism"
   }
 

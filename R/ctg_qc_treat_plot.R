@@ -102,7 +102,11 @@ ctg_qc_treat_plot <- function(
   }
 
   # Add dose-response curve if applicable
-  if(show_dose_response_curve == TRUE){
+  if(show_dose_response_curve == TRUE &
+     all(!is.na(data_model$slope_est[1]),
+         !is.na(data_model$lower_asy_est[1]),
+         !is.na(data_model$upper_asy_est[1]),
+         !is.na(data_model$rel_ic50_est[1]))){
     plot_01 <- plot_01 +
       ggplot2::stat_function(
         data = data_temp,

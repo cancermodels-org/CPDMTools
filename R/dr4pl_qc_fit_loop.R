@@ -17,7 +17,7 @@ dr4pl_qc_fit_loop <- function(
     ub_if_max_lt = 0.8){
 
   # If input is ctg_list, extract data_frame
-  if(is.list(ctg_data)){
+  if(is.list(ctg_data) & !is.data.frame(ctg_data)){
     data_frame <- ctg_list[[1]]
   }else{
     data_frame <- ctg_data
@@ -66,7 +66,7 @@ dr4pl_qc_fit_loop <- function(
   data_combined <- data_combined %>%
     dplyr::arrange(treatment_name, concentration)
   data_model <- data_model %>%
-    arrange(treatment_name)
+    dplyr::arrange(treatment_name)
 
   # Create output list
   output_list <- list(

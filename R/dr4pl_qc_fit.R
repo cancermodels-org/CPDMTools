@@ -32,31 +32,12 @@ dr4pl_qc_fit <- function(
     method_robust = "Huber",
     lb_if_min_gt = 0.3,
     ub_if_max_lt = 0.8) {
-  # Create max deximal function (Remove later)
-  max_decimals <- function(x) {
-    x <- x[!is.na(x) & is.finite(x)]
-
-    if (!is.numeric(x)) stop("Input must be numeric")
-    if (length(x) == 0) return(NA_integer_)
-
-    decimals <- sapply(x, function(val) {
-      if (val %% 1 == 0) return(0)
-      dec_str <- sub("^[^.]*\\.", "", sub("0+$", "", as.character(val)))
-      nchar(dec_str)
-    })
-
-    max(decimals)
-  }
-
   # Remove outliers based on manual selection
   data_temp <- data_frame %>%
     dplyr::filter(
       (outlier_manual_yn != "Yes" |
         is.na(outlier_manual_yn))
     )
-
-  # Calculate max decimal of concentration variable
-  max_dec_conc <- max_decimals(data_temp$concentration)
 
   # Initiate null model
   model <- NULL
@@ -91,7 +72,7 @@ dr4pl_qc_fit <- function(
         bound_threshold <- bound_threshold + 0.10
       }
     }
-  # Fit unbound model
+    # Fit unbound model
   } else {
     model <- dr4pl::dr4pl(
       formula = value_norm ~ concentration,
@@ -103,32 +84,56 @@ dr4pl_qc_fit <- function(
 
   # Stop execution if model did not converge
   if (is.null(model)) {
-    stop("Error: Model did not converge")
+    warning(paste0(
+      "Warning: Model did not converge for treatment ",
+      treatment_name
+    ))
+    model_parameters <- tibble::tibble(
+      treatment_name = treatment_name,
+      function_type = "4-param logistic",
+      num_obs = nrow(data_temp),
+      num_unique_conc = length(unique(data_temp$concentration)),
+      min_conc = min(data_temp$concentration, na.rm = TRUE),
+      max_conc = max(data_temp$concentration, na.rm = TRUE),
+      conc_unit = concentration_unit,
+      slope_est = NA,
+      lower_asy_est = NA,
+      upper_asy_est = NA,
+      rel_ic50_est = NA
+    )
+  } else {
+    # Get summary of parameters
+    sum_model <- summary(model)$coefficients
+
+    # Extract model parameters
+    model_parameters <- tibble::tibble(
+      treatment_name = treatment_name,
+      function_type = "4-param logistic",
+      num_obs = nrow(data_temp),
+      num_unique_conc = length(unique(data_temp$concentration)),
+      min_conc = min(data_temp$concentration, na.rm = TRUE),
+      max_conc = max(data_temp$concentration, na.rm = TRUE),
+      conc_unit = concentration_unit,
+      slope_est = sum_model[3, "Estimate"] * -1,
+      lower_asy_est = sum_model[4, "Estimate"],
+      upper_asy_est = sum_model[1, "Estimate"],
+      rel_ic50_est = dr4pl::IC(model, 50)
+    )
+
+    # Bound rel_ic50_est when extraneously large
+    model_parameters <- model_parameters %>%
+      dplyr::mutate(
+        rel_ic50_est = dplyr::case_when(
+          . > 999999 ~ 999999,
+          TRUE ~ rel_ic50_est
+        )
+      )
+
+    # Get potential outliers
+    data_temp[model$idx.outlier, "outlier_auto_yn"] <- "Yes"
+    data_temp[model$idx.outlier, "outlier_auto_flag_reason"] <-
+      paste0("dr4pl potential outlier - ", method_robust, " method")
   }
-
-
-  # Get summary of parameters
-  sum_model <- summary(model)$coefficients
-
-  # Extract model parameters
-  model_parameters <- tibble::tibble(
-    treatment_name = treatment_name,
-    function_type = "4-param logistic",
-    num_obs = nrow(data_temp),
-    num_unique_conc = length(unique(data_temp$concentration)),
-    min_conc = min(data_temp$concentration, na.rm = TRUE),
-    max_conc = max(data_temp$concentration, na.rm = TRUE),
-    conc_unit = concentration_unit,
-    slope_est = sum_model[3, "Estimate"]*-1,
-    lower_asy_est = sum_model[4, "Estimate"],
-    upper_asy_est = sum_model[1, "Estimate"],
-    rel_ic50_est = dr4pl::IC(model, 50)
-  )
-
-  # Get potential outliers
-  data_temp[model$idx.outlier, "outlier_auto_yn"] <- "Yes"
-  data_temp[model$idx.outlier, "outlier_auto_flag_reason"] <-
-    paste0("dr4pl potential outlier - ", method_robust, " method")
 
   # Rename outlier variables
   data_temp <- data_temp %>%
@@ -145,11 +150,13 @@ dr4pl_qc_fit <- function(
       outlier_auto_yn =
         dplyr::case_when(
           outlier_auto_yn_new == "Yes" ~ "Yes",
-          TRUE ~ outlier_auto_yn),
+          TRUE ~ outlier_auto_yn
+        ),
       outlier_auto_flag_reason =
         dplyr::case_when(
           outlier_auto_yn_new == "Yes" ~ outlier_auto_flag_reason_new,
-          TRUE ~ outlier_auto_flag_reason)
+          TRUE ~ outlier_auto_flag_reason
+        )
     ) %>%
     dplyr::select(-outlier_auto_yn_new, -outlier_auto_flag_reason_new)
 

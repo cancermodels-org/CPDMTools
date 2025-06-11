@@ -97,8 +97,6 @@ data_frame[which(data_frame$well == "D17"), "value_norm"] <- 0.4
 
 data_frame[which(data_frame$well %in% c("G22","K12","D17")), "outlier_manual_yn"] <- "Yes"
 
-data_frame <- data.frame(data.frame)
-
 data_frame <- ctg_qc_mean_outlier(
   ctg_data = data_frame,
   z_score_threshold = 3
@@ -124,6 +122,40 @@ ctg_qc_treat_plot(
 )
 
 
-prims <- ctg_to_prism(ctg_list[[1]])
+prism <- ctg_to_prism(ctg_list[[1]])
+
+output <- ctg_qc_output(ctg_list = ctg_list)
+
+# Prepare analysis RShiny input files
+ctg_data <- read_excel(
+  here("Test Data", "qc_rshiny_input_files",
+       "endpoint_assay_qc_input.xlsx")
+)
+
+ctg_data <- ctg_data %>%
+  mutate(outlier_auto_yn = "No",
+         outlier_auto_flag_reason = as.character(NA),
+         outlier_manual_yn = NA,
+         outlier_manual_flag_reason = as.character(NA))
+
+ctg_data <- ctg_data %>%
+  round_concentration(
+    round_by = 4,
+    use_nearest_10 = TRUE
+  )
+
+ctg_data <- ctg_normalize(
+  data_frame = ctg_data,
+  use_positive_control = TRUE)
+
+ctg_data <- ctg_data %>%
+  select(well, treatment_name, treatment_type,
+         concentration, value, value_norm)
+
+writexl::write_xlsx(
+  ctg_data,
+  here("Test Data","analysis_rshiny_input_files",
+       "endpoint_assay_analysis_input.xlsx")
+)
 
 
