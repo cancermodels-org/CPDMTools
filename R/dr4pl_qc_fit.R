@@ -124,7 +124,7 @@ dr4pl_qc_fit <- function(
     model_parameters <- model_parameters %>%
       dplyr::mutate(
         rel_ic50_est = dplyr::case_when(
-          . > 999999 ~ 999999,
+          rel_ic50_est > 999999 ~ 999999,
           TRUE ~ rel_ic50_est
         )
       )
