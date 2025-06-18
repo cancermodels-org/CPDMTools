@@ -1,0 +1,226 @@
+---
+title: "`r ifelse(is.null(params$report_title), 'Default Title', params$report_title)`"
+author: "`r ifelse(is.null(params$report_sub_title), 'Growth Assay Analysis Report', params$report_sub_title)`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: rmarkdown_style_20241111.tex
+  word_document: default
+fontsize: 11pt
+geometry:
+  - left=0.75in
+  - right=0.75in
+  - top=0.5in
+  - bottom=0.5in
+params:
+  file_name: "growth_assay_analysis_input.xlsx"
+  report_title: "Growth_Assay_Output" 
+  report_sub_title: "Growth Assay Analysis Report"
+  growth_metric_name: "Confluency"
+  time_units: "hours"
+  concentration_unit: "µM"
+  display_metric: "wells"
+  show_controls: TRUE
+  x_limits: NULL
+  n_x_axis_breaks: 8
+  y_limits: NULL
+  n_y_axis_breaks: 6
+  fig_width_in: 8
+  fig_height_in: 6
+---
+
+```{r load-packages, echo=FALSE, message=FALSE, warning=FALSE}
+library(tinytex)
+library(knitr)
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  fig.align = "center"
+)
+library(CPDMTools)
+library(readxl)
+library(writexl)
+library(rmarkdown)
+library(stringr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(viridis)
+library(flextable)
+library(here)
+
+# Turn off scientific notation
+options(scipen = 999)
+```
+
+
+```{r data-prep, include=FALSE}
+# Import file
+data <- read_excel(
+  here("Test Data", "analysis_rshiny_input_files", params$file_name)
+)
+
+# Create folders
+if (!file.exists(here(params$report_title, "svg"))) {
+  dir.create(
+    here(params$report_title, "svg"),
+    recursive = TRUE
+  )
+}
+if (!file.exists(here(params$report_title, "png"))) {
+  dir.create(
+    here(params$report_title, "png"),
+    recursive = TRUE
+  )
+}
+
+# Create conditional logic for running chunks
+if (any(stringr::str_detect(data$treatment_type, "Monotherapy"))) {
+  mono_check <- TRUE
+} else {
+  mono_check <- FALSE
+}
+
+if (any(
+  stringr::str_detect(
+    data$treatment_type,
+    "Media Control|Negative Control|Positive Control"
+  )
+)) {
+  controls_check <- TRUE
+} else {
+  controls_check <- FALSE
+}
+
+# Assign colors
+data <- CPDMTools::color_palette_mono(data)
+
+# Convert parameters to numeric, handling NULL by setting them to NA
+x_min <- ifelse(is.null(params$x_limits[1]), NA, as.numeric(params$x_limits[1]))
+x_max <- ifelse(is.null(params$x_limits[2]), NA, as.numeric(params$x_limits[2]))
+y_min <- ifelse(is.null(params$y_limits[1]), NA, as.numeric(params$y_limits[1]))
+y_max <- ifelse(is.null(params$y_limits[2]), NA, as.numeric(params$y_limits[2]))
+
+# Create limits as numeric vectors, using NA to let the plot function auto-determine limits
+x_limits <- c(x_min, x_max)
+y_limits <- c(y_min, y_max)
+```
+
+\setcounter{footnote}{1}
+\footnotetext{
+  Report was generated using the 
+  \href{https://proxe.shinyapps.io/CPDMTools/}{
+    \textcolor{blue}{\underline{CPDM Tools RShiny}}
+  }
+}
+\setcounter{footnote}{2}
+
+```{r mono-treats, eval = mono_check, results='asis', fig.height=4.5}
+# Extract monotherapy treatments
+mono_treats <- data %>%
+  dplyr::filter(treatment_type == "Monotherapy") %>%
+  dplyr::pull(treatment_name) %>%
+  unique()
+
+for (a in 1:length(mono_treats)) {
+  # Print title of table
+  cat(paste0("# ", mono_treats[a]))
+
+  # Create plot
+  mono_plot <- CPDMTools::growth_analysis_treat_plot(
+    data_frame = data,
+    treatment_name = mono_treats[a],
+    show_controls = params$show_controls,
+    display_metric = params$display_metric,
+    growth_metric_name = params$growth_metric_name,
+    time_units = params$time_units,
+    concentration_units = params$concentration_unit,
+    x_limits = x_limits,
+    n_x_axis_breaks = params$n_x_axis_breaks,
+    y_limits = y_limits,
+    n_y_axis_breaks = params$n_y_axis_breaks
+  )
+
+  # Print plot
+  print(mono_plot)
+  cat("\n\n")
+  
+  # Remove forbidden characters from names
+  name_safe <- gsub("[\\/:*?\"<>|%]", "", mono_treats[a])
+
+  # Save plots
+  ggsave(
+    plot = mono_plot,
+    filename =
+      here(
+        params$report_title, "svg",
+        paste0(name_safe, "_plot.svg")
+      ),
+    width = params$fig_width_in, height = params$fig_height_in, units = "in"
+  )
+  ggsave(
+    plot = mono_plot,
+    filename = here(
+      params$report_title, "png",
+      paste0(name_safe, "_plot.png")
+    ),
+    width = params$fig_width_in, height = params$fig_height_in, units = "in"
+  )
+}
+```
+
+```{r controls, eval = controls_check, fig.height=4.5}
+# Extract controls treatments
+controls <- data %>%
+  dplyr::filter(treatment_type %in%
+    c("Media Control", "Negative Control", "Positive Control")) %>%
+  dplyr::pull(treatment_name) %>%
+  unique()
+
+for (a in 1:length(controls)) {
+  # Print title of table
+  cat(paste0("# ", controls[a]))
+
+  # Create plot
+  control_plot <- CPDMTools::growth_analysis_control_plot(
+    data_frame = data,
+    treatment_name = controls[a],
+    display_metric = params$display_metric,
+    growth_metric_name = params$growth_metric_name,
+    time_units = params$time_units,
+    concentration_units = params$concentration_unit,
+    x_limits = x_limits,
+    n_x_axis_breaks = params$n_x_axis_breaks,
+    y_limits = y_limits,
+    n_y_axis_breaks = params$n_y_axis_breaks
+  )
+
+  # Print plot
+  print(control_plot)
+  cat("\n\n")
+  
+  # Remove forbidden characters from names
+  name_safe <- gsub("[\\/:*?\"<>|%]", "", controls[a])
+
+  # Save plots
+  ggsave(
+    plot = control_plot,
+    filename =
+      here(
+        params$report_title, "svg",
+        paste0(name_safe, "_plot.svg")
+      ),
+    width = params$fig_width_in, height = params$fig_height_in, units = "in"
+  )
+  ggsave(
+    plot = control_plot,
+    filename = here(
+      params$report_title, "png",
+      paste0(name_safe, "_plot.png")
+    ),
+    width = params$fig_width_in, height = params$fig_height_in, units = "in"
+  )
+}
+```

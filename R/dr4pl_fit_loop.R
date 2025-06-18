@@ -5,6 +5,8 @@
 #'
 #' @returns A list object to be used for plotting, displaying tables, and
 #' exporting
+#' @importFrom dplyr arrange bind_rows filter
+#' @importFrom magrittr %>%
 #' @export
 #'
 dr4pl_fit_loop <- function(

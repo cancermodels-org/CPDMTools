@@ -1,0 +1,142 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[left=0.75in,right=0.75in,top=0.5in,bottom=0.5in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+%\usepackage{fontspec}
+%\setmainfont{Calibri}
+\usepackage{titling}
+
+% Adjust spacing to move header closer to top of page
+\setlength{\droptitle}{-2cm}
+
+% Left-align title, author, and date with reduced spacing between them
+\pretitle{\begin{flushleft}\Large\vspace{-0.5em}} % Reduces space above title
+\posttitle{\end{flushleft}\vspace{-0.5em}}        % Reduces space below title
+\preauthor{\begin{flushleft}\Large\vspace{0em}} % Reduces space above author
+\postauthor{\end{flushleft}\vspace{-2em}}       % Reduces space below author
+\predate{\begin{flushleft}\Large\vspace{0em}}  % Reduces space above date
+\postdate{\end{flushleft}\vspace{-0.75em}\noindent\makebox[\linewidth]{\rule{\textwidth}{0.4pt}} % Line after date
+\vspace{-1.5em}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Growth\_Assay\_Output},
+  pdfauthor={Growth Assay Analysis Report},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Growth\_Assay\_Output}
+\author{Growth Assay Analysis Report}
+\date{}
+
+\begin{document}
+\maketitle
+
+\setcounter{footnote}{1}
+\footnotetext{
+  Report was generated using the 
+  \href{https://proxe.shinyapps.io/CPDMTools/}{
+    \textcolor{blue}{\underline{CPDM Tools RShiny}}
+  }
+}
+\setcounter{footnote}{2}
+
+\section{Drug\_A}\label{drug_a}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/mono-treats-1} \end{center}
+
+\section{Drug\_B}\label{drug_b}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/mono-treats-2} \end{center}
+
+\section{Drug\_C}\label{drug_c}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/mono-treats-3} \end{center}
+
+\section{Drug\_D}\label{drug_d}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/mono-treats-4} \end{center}
+
+\section{Drug\_E}\label{drug_e}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/mono-treats-5} \end{center}
+
+\section{Drug\_F}\label{drug_f}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/mono-treats-6} \end{center}
+
+\begin{verbatim}
+## # DMSO 0.5%
+\end{verbatim}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/controls-1} \end{center}
+
+\begin{verbatim}
+## # Media Only
+\end{verbatim}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/controls-2} \end{center}
+
+\begin{verbatim}
+## # Staurosporine
+\end{verbatim}
+
+\begin{center}\includegraphics{growth_analysis_rmarkdown_files/figure-latex/controls-3} \end{center}
+
+\end{document}

@@ -1,0 +1,15 @@
+%\usepackage{fontspec}
+%\setmainfont{Calibri}
+\usepackage{titling}
+
+% Adjust spacing to move header closer to top of page
+\setlength{\droptitle}{-2cm}
+
+% Left-align title, author, and date with reduced spacing between them
+\pretitle{\begin{flushleft}\Large\vspace{-0.5em}} % Reduces space above title
+\posttitle{\end{flushleft}\vspace{-0.5em}}        % Reduces space below title
+\preauthor{\begin{flushleft}\Large\vspace{0em}} % Reduces space above author
+\postauthor{\end{flushleft}\vspace{-2em}}       % Reduces space below author
+\predate{\begin{flushleft}\Large\vspace{0em}}  % Reduces space above date
+\postdate{\end{flushleft}\vspace{-0.75em}\noindent\makebox[\linewidth]{\rule{\textwidth}{0.4pt}} % Line after date
+\vspace{-1.5em}}

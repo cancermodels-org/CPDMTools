@@ -45,7 +45,7 @@ maximum normalized value is less than the designated threshold. Defaults to
 \item{readout}{A character string specifying the readout type. Values include
 "inhibition", "activity". Defaults to "inhibition".}
 
-\item{activity_threshold}{A numeric value specifying the minimim actvity
+\item{activity_threshold}{A numeric value specifying the minimum activity
 (in terms of \%inhibition) needed to be counted towards the DSS. Defaults to
 10.}
 
@@ -58,7 +58,7 @@ concentrations need to be log transformed before hand. Defaults to TRUE.}
 \item{slope_threshold}{A numeric value specifying at what slope is too small
 and sets the DSS score to 0. Defaults to 0.1.}
 
-\item{max_dss}{A numeric value specying the maximum a DSS score van be,
+\item{max_dss}{A numeric value specifying the maximum a DSS score van be,
 defaults to 100.}
 }
 \value{

@@ -1,0 +1,267 @@
+---
+title: "`r ifelse(is.null(params$report_title), 'Default Title', params$report_title)`"
+author: "`r ifelse(is.null(params$report_sub_title), 'End-Point Assay Analysis Report', params$report_sub_title)`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    includes:
+      in_header: rmarkdown_style_20241111.tex
+  word_document: default
+fontsize: 11pt
+geometry:
+  - left=0.75in
+  - right=0.75in
+  - top=0.5in
+  - bottom=0.5in
+params:
+  file_name: "endpoint_assay_analysis_input.xlsx"
+  report_title: "Endpoint_Assay_Output" 
+  report_sub_title: "End-Point Assay Analysis Report"
+  concentration_unit: "µM"
+  method_init: "logistic"
+  lb_if_min_gt: 0.3
+  ub_if_max_lt: 0.8
+  readout: "activity"
+  activity_threshold: 10
+  slope_threshold: 0.1
+  score_label_size: 4
+  x_scale: "log"
+  display_type: "se_bars"
+  dose_plot_sub_title: "both"
+  y_axis_title: "Normalized Value"
+  fig_width_in: 7.5
+  fig_height_in: 5.5
+---
+
+```{r load-packages, echo=FALSE, message=FALSE, warning=FALSE}
+library(tinytex)
+library(knitr)
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  echo = FALSE,
+  fig.align = "center"
+)
+library(CPDMTools)
+library(readxl)
+library(writexl)
+library(rmarkdown)
+library(stringr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(viridis)
+library(flextable)
+library(here)
+
+# Turn off scientific notation
+options(scipen = 999)
+```
+
+
+```{r data-analysis, include=FALSE}
+# Import file
+data <- read_excel(
+  here("Test Data", "analysis_rshiny_input_files", params$file_name)
+)
+
+# Perform End-Point Assay Analysis
+ctg_list <- CPDMTools::dr4pl_fit_loop(
+  data_frame = data,
+  concentration_unit = params$concentration_unit,
+  method_init = params$method_init,
+  method_robust = "squared",
+  lb_if_min_gt = params$lb_if_min_gt,
+  ub_if_max_lt = params$ub_if_max_lt,
+  readout = params$readout,
+  activity_threshold = params$activity_threshold,
+  dss_type = 3,
+  slope_threshold = params$slope_threshold,
+  max_dss = 100
+)
+
+# Create folders
+if (!file.exists(here(params$report_title, "svg"))) {
+  dir.create(
+    here(params$report_title, "svg"),
+    recursive = TRUE
+  )
+}
+if (!file.exists(here(params$report_title, "png"))) {
+  dir.create(
+    here(params$report_title, "png"),
+    recursive = TRUE
+  )
+}
+```
+
+# Analysis Method
+Dose-response curve analysis was performed using the \href{https://proxe.shinyapps.io/CPDMTools/}{\textcolor{blue}{\underline{CPDM Tools RShiny}}, where 4-parameter logistic curves were fit using the 'dr4pl' package (version `r packageVersion("dr4pl")`, `r R.version.string`) and drug sensitivity scores (DSS3) were calculated based on methods described in Yadav et al. (2014)\textsuperscript{1}. DSS3 scores were modified such that treatments with an estimated slope parameter less than `r params$slope_threshold` were assigned a score of 0.
+
+# Results Table - All Treatments
+```{r table-all,echo=FALSE, results='asis'}
+CPDMTools::ctg_summary_table_all(
+  ctg_list = ctg_list,
+  show = "both",
+  use_knit_print = FALSE
+)
+```
+
+\setcounter{footnote}{1}
+\footnotetext{Yadav et al. (2014). Quantitative scoring of differential drug sensitivity for individually optimized anticancer therapies. \textit{Scientific Reports}, \textit{4}(1), 5193. \href{https://doi.org/10.1038/srep05193}{https://doi.org/10.1038/srep05193}}
+\setcounter{footnote}{2}
+
+# Dose-Response Curve Plot - All Treatments
+```{r dose-plot-all}
+dose_plot_all <- CPDMTools::ctg_treat_plot_all(
+  ctg_list = ctg_list,
+  x_scale = params$x_scale,
+  display_type = "se_bars",
+  y_axis_title = params$y_axis_title,
+  y_limits = c(0, 1.5)
+)
+
+print(dose_plot_all)
+
+# Save plots
+ggsave(
+  plot = dose_plot_all,
+  filename = here(
+    params$report_title, "svg",
+    "dose_plot_all.svg"
+  ),
+  width = params$fig_width_in, height = params$fig_height_in, units = "in"
+)
+ggsave(
+  plot = dose_plot_all,
+  filename = here(
+    params$report_title, "png",
+    "dose_plot_all.png"
+  ),
+  width = params$fig_width_in, height = params$fig_height_in, units = "in"
+)
+```
+
+# Relative IC50 and 95% Confidence Intervals Plot - All Treatments
+```{r ic50-forest}
+ic50_forest <- CPDMTools::ctg_ic50_forest_plot(
+  ctg_list = ctg_list,
+  x_scale = params$x_scale
+)
+
+print(ic50_forest)
+
+# Save plots
+ggsave(
+  plot = ic50_forest,
+  filename = here(
+    params$report_title, "svg",
+    "ic50_forest_plot.svg"
+  ),
+  width = params$fig_width_in, height = params$fig_height_in, units = "in"
+)
+ggsave(
+  plot = ic50_forest,
+  filename = here(
+    params$report_title, "png",
+    "ic50_forest_plot.png"
+  ),
+  width = params$fig_width_in, height = params$fig_height_in, units = "in"
+)
+```
+
+# Drug Sensitivty Score Plot - All Treatments
+```{r dss-bar}
+dss_bar_plot <- CPDMTools::ctg_dss_barplot(
+  ctg_list = ctg_list,
+  score_label_size = params$score_label_size
+)
+
+print(dss_bar_plot)
+
+# Save plots
+ggsave(
+  plot = dss_bar_plot,
+  filename = here(
+    params$report_title, "svg",
+    "dss_bar_plot.svg"
+  ),
+  width = params$fig_width_in, height = params$fig_height_in, units = "in"
+)
+ggsave(
+  plot = dss_bar_plot,
+  filename = here(
+    params$report_title, "png",
+    "dss_bar_plot.png"
+  ),
+  width = params$fig_width_in, height = params$fig_height_in, units = "in"
+)
+```
+
+\pagebreak
+
+```{r ind-treatments, results='asis', fig.height=4.5}
+for (a in 1:nrow(ctg_list$model_parameters)) {
+  
+  # Print title of table
+  cat(paste0("# ", ctg_list$model_parameters$treatment_name[a]))
+  
+  # Print summary table
+  ind_tbl <- CPDMTools::ctg_summary_table_ind(
+    ctg_list = ctg_list,
+    treat_name = ctg_list$model_parameters$treatment_name[a]
+  )
+  cat(knitr::knit_print(ind_tbl))
+  
+  # Create individual plot
+  ind_plot <- CPDMTools::ctg_treat_plot_ind(
+    ctg_list = ctg_list,
+    treat_name = ctg_list$model_parameters$treatment_name[a],
+    x_scale = params$x_scale,
+    sub_title = params$dose_plot_sub_title,
+    display_type = params$display_type,
+    y_axis_title = params$y_axis_title,
+    y_limits = c(0, 1.5),
+    n_y_axis_breaks = 7
+  )
+  print(ind_plot)
+  
+  if(a < nrow(ctg_list$model_parameters)){
+    cat("\n\\pagebreak\n")
+  }
+
+  # Save plots
+  ggsave(
+    plot = ind_plot,
+    filename =
+      here(
+        params$report_title, "svg",
+        paste0(ctg_list$model_parameters$treatment_name[a], "_plot.svg")
+      ),
+    width = params$fig_width_in, height = params$fig_height_in, units = "in"
+  )
+  ggsave(
+    plot = ind_plot,
+    filename = here(
+      params$report_title, "png",
+      paste0(ctg_list$model_parameters$treatment_name[a], "_plot.png")
+    ),
+    width = params$fig_width_in, height = params$fig_height_in, units = "in"
+  )
+}
+```
+
+```{r export-data, include=FALSE}
+# Rename list elements
+names(ctg_list)[1] <- "results"
+names(ctg_list)[3] <- "mono_treat_data"
+
+# Export data to excel
+writexl::write_xlsx(
+  ctg_list,
+  here(params$report_title, "results.xlsx")
+)
+
+```
+
+

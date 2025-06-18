@@ -21,6 +21,7 @@
 #'
 #' @importFrom dplyr across case_when contains mutate select
 #' @importFrom dr4pl dr4pl
+#' @importFrom magrittr %>%
 #' @importFrom tibble tibble
 #' @importFrom stats formula
 #' @importFrom tidyr pivot_longer
