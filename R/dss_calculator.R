@@ -10,8 +10,8 @@
 #' @param dss_type A numeric value specifying which DSS score to return. Values
 #' include 1, 2, 3. Defaults to 3.
 #' @param concentration_unit A character string specifying the concentration unit
-#' needed to convert to molar. Values include "M", "mM", "uM", "nM", "pM, "fM".
-#' Defaults to "uM"
+#' needed to convert to molar. Values include "M", "mM", "µM", "nM", "pM, "fM".
+#' Defaults to "µM"
 #' @param log_transform A logical value specifying whether the min and max
 #' concentrations need to be log transformed before hand. Defaults to TRUE.
 #' @param slope_threshold A numeric value specifying at what slope is too small
@@ -26,7 +26,7 @@ dss_calculator <- function(data_frame,
                            readout = "inhibition",
                            activity_threshold = 10,
                            dss_type = 3,
-                           concentration_unit = "uM",
+                           concentration_unit = "µM",
                            log_transform = TRUE,
                            slope_threshold = 0.1,
                            max_dss = 100) {

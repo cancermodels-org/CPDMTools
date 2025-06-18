@@ -9,7 +9,7 @@ dss_calculator(
   readout = "inhibition",
   activity_threshold = 10,
   dss_type = 3,
-  concentration_unit = "uM",
+  concentration_unit = "µM",
   log_transform = TRUE,
   slope_threshold = 0.1,
   max_dss = 100
@@ -30,8 +30,8 @@ dr4pl_fit function}
 include 1, 2, 3. Defaults to 3.}
 
 \item{concentration_unit}{A character string specifying the concentration unit
-needed to convert to molar. Values include "M", "mM", "uM", "nM", "pM, "fM".
-Defaults to "uM"}
+needed to convert to molar. Values include "M", "mM", "µM", "nM", "pM, "fM".
+Defaults to "µM"}
 
 \item{log_transform}{A logical value specifying whether the min and max
 concentrations need to be log transformed before hand. Defaults to TRUE.}
