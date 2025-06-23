@@ -61,7 +61,7 @@ ctg_ic50_forest_plot(
 # Create individual plot
 ctg_treat_plot_ind(
   ctg_list = ctg_list,
-  treat_name = "Drug_C",
+  treat_name = "Drug_A",
   display_type = "points",
   y_limits = c(0, 2)
 )
@@ -69,11 +69,8 @@ ctg_treat_plot_ind(
 # Create individual table
 ctg_summary_table_ind(
   ctg_list = ctg_list,
-  treat_name = "Drug_B"
+  treat_name = "Drug_A"
 )
-
-
-
 
 
 ## Growth data
