@@ -7,6 +7,7 @@
 #'
 #' @returns A ggplot2 bar chart
 #' @import ggplot2
+#' @importFrom viridis viridis
 #' @export
 #'
 ctg_dss_barplot <- function(
@@ -19,18 +20,22 @@ ctg_dss_barplot <- function(
   # Extract data
   dss_data <- ctg_list[["model_parameters"]]
 
+  # Add colors
+  dss_data <- dss_data %>%
+    dplyr::mutate(color = viridis::viridis(nrow(dss_data)))
+
   # Create barchart
   bar_plot <- ggplot2::ggplot(
     dss_data,
     ggplot2::aes(
       x = treatment_name,
-      y = dss3
+      y = dss3,
+      fill = color
     )
   ) +
     ggplot2::geom_bar(
       stat = "identity",
       position = "dodge",
-      fill = "#1f77b4"
     ) +
     ggplot2::geom_text(
       ggplot2::aes(label = round(dss3, 2)),
@@ -39,6 +44,7 @@ ctg_dss_barplot <- function(
       size = score_label_size
     ) +
     ggplot2::theme_classic() +
+    ggplot2::scale_fill_identity() +
     ggplot2::scale_y_continuous(
       expand = c(0, 0),
       limits = c(0, 110)
