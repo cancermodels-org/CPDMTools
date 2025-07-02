@@ -104,6 +104,13 @@ data_frame <- ctg_qc_mean_outlier(
 #data_frame[which(data_frame$well == "D17"), "outlier_manual_yn"] <- "No"
 #data_frame[which(data_frame$well == "D11"), "outlier_manual_yn"] <- "No"
 
+# Raw data plot check
+ctg_qc_treat_plot_raw(
+  ctg_data = data_frame,
+  treat_name = "AMG232",
+  make_interactive = TRUE
+)
+
 ctg_list <- dr4pl_qc_fit_loop(
   ctg_data = data_frame,
   method_init = "logistic",

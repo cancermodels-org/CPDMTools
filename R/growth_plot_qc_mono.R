@@ -179,6 +179,7 @@ growth_plot_qc_mono <- function(data_frame,
             "Well: ", well, "<br>",
             "Treatment: ", treatment_name, "<br>",
             "Concentration: ", concentration, "<br>",
+            "Time", time, "<br>",
             growth_metric_name, ": ", round(growth_metric, 2)
           )
         ),
@@ -194,6 +195,7 @@ growth_plot_qc_mono <- function(data_frame,
           text = paste0(
             "Well: ", well, "<br>",
             "Treatment: ", treatment_name, "<br>",
+            "Time", time, "<br>",
             growth_metric_name, ": ", round(growth_metric, 2)
           )
         ),

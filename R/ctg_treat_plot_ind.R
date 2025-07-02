@@ -83,7 +83,7 @@ ctg_treat_plot_ind <- function(
     ])
     plot_title <- paste0(
       treat_name, "\n",
-      "DSS3: ", ic50
+      "DSS3: ", dss3
     )
   }
   if (sub_title == "both") {
@@ -232,6 +232,10 @@ ctg_treat_plot_ind <- function(
             aes(
               x = log10(concentration),
               y = mean_value,
+              text = paste0(
+                "Treatment: ", treatment_name, "<br>",
+                "Mean Value Norm: ", round(mean_value, 3)
+              )
             ),
             color = data_model$color[1],
             size = 2,
@@ -258,6 +262,10 @@ ctg_treat_plot_ind <- function(
             aes(
               x = concentration,
               y = mean_value,
+              text = paste0(
+                "Treatment: ", treatment_name, "<br>",
+                "Mean Value Norm: ", round(mean_value, 3)
+              )
             ),
             color = data_model$color[1],
             size = 2,

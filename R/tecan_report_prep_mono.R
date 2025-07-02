@@ -11,7 +11,8 @@
 #' @importFrom readxl read_excel
 #' @importFrom janitor make_clean_names
 #' @importFrom dplyr case_when filter mutate select
-#' @importFrom stringr str_remove str_remove_all str_replace_all str_squish
+#' @importFrom stringr str_remove str_remove_all str_remove
+#' str_replace_all str_squish
 #' @export
 #'
 #' @examples
@@ -93,6 +94,27 @@ tecan_report_prep_mono <- function(
     data_frame <- data_frame %>%
       dplyr::filter(!is.na(treatment_name))
   }
+
+  # Fix names that contain "_-_#:###" or similar string
+  data_frame <- data_frame %>%
+    dplyr::mutate(
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:][:number:][:number:][:number:]"),
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:][:number:][:number:]"),
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:][:number:]"),
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:]"),
+    )
 
   # Remove NA treatment_name values
   return(data_frame)

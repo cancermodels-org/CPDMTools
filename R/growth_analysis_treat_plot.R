@@ -47,7 +47,7 @@ growth_analysis_treat_plot <- function(data_frame,
     unique()
 
   if (treatment_name != "" &
-    !treatment_name %in% mono_treats) {
+      !treatment_name %in% mono_treats) {
     stop_msg <- paste0(
       treatment_name, " does not match the following monotherapy treatments: ",
       paste(mono_treats, collapse = ", "), ". Please specify a single",
@@ -70,11 +70,11 @@ growth_analysis_treat_plot <- function(data_frame,
   # Filter data to treatment_name and control data
   data_temp <- data_frame %>%
     dplyr::filter((treatment_name == treatment_ch |
-      treatment_type %in% c(
-        "Media Control",
-        "Negative Control",
-        "Positive Control"
-      )))
+                     treatment_type %in% c(
+                       "Media Control",
+                       "Negative Control",
+                       "Positive Control"
+                     )))
 
   # Create treatment variable
   if (show_controls == TRUE) {
@@ -97,7 +97,7 @@ growth_analysis_treat_plot <- function(data_frame,
       dplyr::mutate(
         treatment = dplyr::case_when(
           !is.na(concentration) ~ paste0(treatment_name, "-",
-                           concentration, concentration_units),
+                                         concentration, concentration_units),
           TRUE ~ treatment_name)
       )
 
@@ -155,7 +155,7 @@ growth_analysis_treat_plot <- function(data_frame,
     if (nrow(treatment_time_value > 0)) {
       treatment_time_value <- treatment_time_value %>%
         dplyr::filter(!!rlang::sym("time") ==
-          min(!!rlang::sym("time"), na.rm = TRUE)) %>%
+                        min(!!rlang::sym("time"), na.rm = TRUE)) %>%
         dplyr::pull(!!rlang::sym("time")) %>%
         unique()
     } else {
@@ -230,7 +230,10 @@ growth_analysis_treat_plot <- function(data_frame,
           ) +
           ggplot2::geom_point(
             data = data_temp,
-            aes(x = time, y = mean_value, color = treatment),
+            aes(x = time,
+                y = mean_value,
+                color = treatment
+            ),
             size = geom_point_size,
             inherit.aes = FALSE,
             alpha = 0.75
@@ -367,7 +370,7 @@ growth_analysis_treat_plot <- function(data_frame,
           values = color_map
         )
     }
-  # If show_controls == FALSE, color by concentration
+    # If show_controls == FALSE, color by concentration
   }else{
     # Convert concentration to a factor variable
     data_temp <- data_temp %>%
@@ -572,11 +575,13 @@ growth_analysis_treat_plot <- function(data_frame,
   plot_01 <- plot_01 +
     ggplot2::theme_classic() +
     ggplot2::scale_x_continuous(
+      expand = c(0,0),
       limits = x_limits,
       breaks = x_axis_breaks,
       n.breaks = n_x_axis_breaks
     ) +
     ggplot2::scale_y_continuous(
+      expand = c(0,0),
       limits = y_limits,
       breaks = y_axis_breaks,
       n.breaks = n_y_axis_breaks

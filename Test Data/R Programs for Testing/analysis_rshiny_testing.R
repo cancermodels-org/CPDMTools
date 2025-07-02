@@ -62,8 +62,9 @@ ctg_ic50_forest_plot(
 ctg_treat_plot_ind(
   ctg_list = ctg_list,
   treat_name = "Drug_A",
-  display_type = "points",
-  y_limits = c(0, 2)
+  display_type = "se_bars",
+  y_limits = c(0, 2),
+  make_interactive = TRUE
 )
 
 # Create individual table
@@ -95,8 +96,8 @@ growth_analysis_treat_plot(
   treatment_name = "Drug_C",
   show_controls = TRUE,
   display_metric = "mean_se",
-  make_interactive = FALSE,
-  growth_metric_name = "growth_metric",
+  make_interactive = TRUE,
+  growth_metric_name = "Confluency",
   time_units = "hours",
   concentration_units = "µM"
 )

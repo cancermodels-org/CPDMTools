@@ -167,6 +167,27 @@ tecan_report_prep_syn <- function(
       dplyr::filter(!is.na(treatment_name))
   }
 
+  # Fix names that contain "_-_#:###" or similar string
+  data_frame <- data_frame %>%
+    dplyr::mutate(
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:][:number:][:number:][:number:]"),
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:][:number:][:number:]"),
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:][:number:]"),
+      treatment_name =
+        stringr::str_remove(
+          treatment_name,
+          "_-_[:number:]\\:[:number:]"),
+    )
+
   # Return tecan data frame
   return(tecan_data)
 
